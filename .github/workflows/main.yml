@@ -11,7 +11,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-                  
+      
+    - name: Docker Login
+      uses: azure/docker-login@v1
+      with:
+        login-server: docker.pkg.github.com
+        username: $GITHUB_ACTOR
+        password: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Docker Build & Push
       run: |
         export DOCKER_TAG=docker.pkg.github.com/$GITHUB_REPOSITORY/todoist2mqtt:${GITHUB_REF#refs/heads/}
