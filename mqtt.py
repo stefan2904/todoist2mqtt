@@ -66,7 +66,7 @@ class Mqtt():
             self.loop()
 
     def publish(self, topic, payload, retain=False):
-        self.client.publish(topic, payload, qos=0, retain=retain)
+        self.client.publish(topic, payload, qos=2, retain=retain)
         self.log.info('> Published: {}: {}'.format(topic, payload))
 
     def setCallback(self, cb):
