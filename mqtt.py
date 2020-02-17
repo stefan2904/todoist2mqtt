@@ -4,7 +4,7 @@ import paho.mqtt.client as mqtt
 
 
 class Mqtt():
-    def __init__(self, host, port, username, password, topics=['failcloud/todoist/#']):
+    def __init__(self, host, port, username, password, topics=['failcloud/todoist/#'], log=None):
         self.host = host
         self.username = username
         self.topics = topics
@@ -21,20 +21,25 @@ class Mqtt():
         self.client.username_pw_set(username, password)
         self.client.connect(host, port, 60)
 
-        logging.info("MQTT initialized.")
+        if log is None:
+            self.log = logging
+        else:
+            self.log = log
+
+        self.log.info("MQTT initialized.")
 
     def on_connect(self, client, userdata, flags, rc):
-        logging.info("Connected with result code " + str(rc))
+        self.log.info("Connected with result code " + str(rc))
         if self.onMessageCallback is not None:
             self.onMessageCallback('MQTT Status', 'Connected to Broker at {} as {}!'.format(self.host, self.username))
         if rc == 5:
-            logging.error("Unauthenticated")
+            self.log.error("Unauthenticated")
             self.onMessageCallback('MQTT Status', 'Unauthenticated')
             return
 
         for topic in self.topics:
             client.subscribe(topic)
-            logging.info("Subscribed to {}".format(topic))
+            self.log.info("Subscribed to {}".format(topic))
         # self.client.subscribe('$SYS/#')
         self.connected = True
 
@@ -42,7 +47,7 @@ class Mqtt():
         if self.onMessageCallback is not None and not msg.retain:
             self.onMessageCallback(msg.topic, str(msg.payload, 'utf-8'))
         else:
-            logging.info(msg.topic + ": " + str(msg.payload, 'utf-8'))
+            self.log.info(msg.topic + ": " + str(msg.payload, 'utf-8'))
 
     def loop_forever(self):
         self.client.loop_forever()
@@ -62,7 +67,7 @@ class Mqtt():
 
     def publish(self, topic, payload, retain=False):
         self.client.publish(topic, payload, qos=0, retain=retain)
-        logging.info('> Published: {}: {}'.format(topic, payload))
+        self.log.info('> Published: {}: {}'.format(topic, payload))
 
     def setCallback(self, cb):
         self.onMessageCallback = cb

@@ -21,12 +21,20 @@ MQTTTOPIC = os.getenv('MQTTTOPIC')
 app = Flask(__name__)
 if __name__ != '__main__':
     gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.info('loglevel is ' + str(app.logger.level))
+    app.logger.info('set loglevel to ' + str(gunicorn_logger.level))
     # app.logger.handlers = gunicorn_logger.handlers
     app.logger.setLevel(gunicorn_logger.level)
 
+    app.logger.info('set loglevel to ' + str(logging.DEBUG))
+    app.logger.setLevel(logging.DEBUG)
+    app.logger.info('loglevel is ' + str(app.logger.level))
+else:
+    app.logger.info('loglevel is ' + app.logger.info.level)
+
 todoist_api = todoist.TodoistAPI(TODOIST_TOKEN)
 
-mqtt = Mqtt(BROKERHOST, BROKERPORT, USERNAME, PASSWORD, topics=[])
+mqtt = Mqtt(BROKERHOST, BROKERPORT, USERNAME, PASSWORD, topics=[], log=app.logger)
 
 
 def verify_headers(headers):
@@ -72,6 +80,14 @@ def todoist():
     process_event(request.json['event_name'], request.json['event_data'])
 
     return jsonify({'status': 'accepted', 'request_id': event_id}), 200
+
+
+@app.route('/test')
+def test():
+    app.logger.info('OK, lets test it ...')
+    process_event('test event', {'id': '3697787544'})
+    return jsonify({'status': 'test request send to mqtt',
+                    'health': 'ok'}), 200
 
 
 @app.route('/')
