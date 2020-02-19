@@ -12,6 +12,7 @@ class Mqtt():
         self.client.enable_logger()
 
         self.client.on_connect = lambda client, userdata, flags, rc: self.on_connect(client, userdata, flags, rc)
+        self.client.on_disconnect = lambda client, userdata, rc: self.on_disconnect(client, userdata, rc)
         self.client.on_message = lambda client, userdata, msg: self.on_message(client, userdata, msg)
 
         self.onMessageCallback = None
@@ -29,7 +30,7 @@ class Mqtt():
         self.log.info("MQTT initialized.")
 
     def on_connect(self, client, userdata, flags, rc):
-        self.log.info("Connected with result code " + str(rc))
+        self.log.info("Connected to {} as {} with result code {}".format(self.host, self.username, str(rc)))
         if self.onMessageCallback is not None:
             self.onMessageCallback('MQTT Status', 'Connected to Broker at {} as {}!'.format(self.host, self.username))
         if rc == 5:
@@ -42,6 +43,9 @@ class Mqtt():
             self.log.info("Subscribed to {}".format(topic))
         # self.client.subscribe('$SYS/#')
         self.connected = True
+
+    def on_disconnect(self, client, userdata, rc):
+        self.log.info("Disconnected with result code {}".format(self.host, self.username, str(rc)))
 
     def on_message(self, client, userdata, msg):
         if self.onMessageCallback is not None and not msg.retain:

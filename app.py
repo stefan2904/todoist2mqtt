@@ -35,6 +35,7 @@ else:
 todoist_api = todoist.TodoistAPI(TODOIST_TOKEN)
 
 mqtt = Mqtt(BROKERHOST, BROKERPORT, USERNAME, PASSWORD, topics=[], log=app.logger)
+mqtt.waitForConnection()
 
 
 def verify_headers(headers):
