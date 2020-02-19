@@ -35,7 +35,7 @@ else:
 todoist_api = todoist.TodoistAPI(TODOIST_TOKEN)
 
 mqtt = Mqtt(BROKERHOST, BROKERPORT, USERNAME, PASSWORD, topics=[], log=app.logger)
-mqtt.waitForConnection()
+mqtt.loop_start()
 
 
 def verify_headers(headers):
@@ -86,7 +86,7 @@ def todoist():
 @app.route('/test')
 def test():
     app.logger.info('OK, lets test it ...')
-    process_event('test event', {'id': '3697787544'})
+    process_event('testevent', {'id': '3697787544'})
     return jsonify({'status': 'test request send to mqtt',
                     'health': 'ok'}), 200
 
