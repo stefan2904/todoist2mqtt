@@ -66,8 +66,14 @@ class Mqtt():
             self.loop()
 
     def publish(self, topic, payload, retain=False):
-        self.client.publish(topic, payload, qos=2, retain=retain)
-        self.log.info('> Published: {}: {}'.format(topic, payload))
+        self.log.info('> MQTT Publishing: {}: {}'.format(topic, payload))
+        info = self.client.publish(topic, payload, qos=2, retain=retain)
+        if info.is_published():
+            self.log.info('> MQTT Publishing done, mid={}'.format(info.mid))
+        else:
+            self.log.info('> MQTT Publishing NOT done, lets wait ...')
+            info.wait_for_publish()
+            self.log.info('> MQTT Publishing now done, mid={}'.format(info.mid))
 
     def setCallback(self, cb):
         self.onMessageCallback = cb
